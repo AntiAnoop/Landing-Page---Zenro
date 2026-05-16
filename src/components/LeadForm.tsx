@@ -1,4 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
+import { 
+  CheckCircle2, 
+  ChevronRight, 
+  Globe, 
+  GraduationCap, 
+  Briefcase, 
+  Wallet, 
+  MapPin, 
+  User, 
+  Mail, 
+  Phone 
+} from 'lucide-react';
 import { TppLead } from '../types';
 import { supabase, handleSupabaseError, isSupabaseConfigured } from '../lib/supabase';
 import { 
@@ -23,18 +36,21 @@ export default function LeadForm({ currentLead, setCurrentLead, onSuccess }: Lea
     if (!isSupabaseConfigured) return;
 
     const { full_name, email, phone } = currentLead;
-    // Save as long as they have a phone number (our unique identifier)
     if (!phone || phone.length < 5) return;
 
     const timer = setTimeout(async () => {
-      await supabase
-        .from('tpp_leads')
-        .upsert({ 
-          phone, 
-          full_name: full_name || null, 
-          email: email || null,
-          status: 'lead'
-        }, { onConflict: 'phone' });
+      try {
+        await supabase
+          .from('tpp_leads')
+          .upsert({ 
+            phone, 
+            full_name: full_name || null, 
+            email: email || null,
+            status: 'lead'
+          }, { onConflict: 'phone' });
+      } catch (e) {
+        console.error('Lead partial save failed', e);
+      }
     }, 1000);
 
     return () => clearTimeout(timer);
@@ -45,7 +61,6 @@ export default function LeadForm({ currentLead, setCurrentLead, onSuccess }: Lea
     setError('');
     
     if (!isSupabaseConfigured) {
-      // Allow bypass in local dev/demo if keys are missing
       onSuccess();
       return;
     }
@@ -69,68 +84,28 @@ export default function LeadForm({ currentLead, setCurrentLead, onSuccess }: Lea
     }
   };
 
-  const handleChange = (field: keyof TppLead, value: string) => {
+  const handleInputChange = (field: keyof TppLead, value: string) => {
     setCurrentLead(prev => ({ ...prev, [field]: value }));
   };
 
   return (
-    <div className="space-y-4 px-3 sm:px-0">
+    <div className="space-y-1">
       {/* Header Card */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-        <div className="h-2 bg-indigo-600" />
-        <div className="p-6 md:p-8 space-y-3">
-          <h1 className="text-2xl md:text-3xl font-normal text-gray-900">Zenro Japan TPP Qualification</h1>
-          <p className="text-sm text-gray-700 leading-relaxed border-b border-gray-100 pb-4">
-            Thank you for your interest in the Japan Transition Program. Please answer the following questions to help us evaluate your profile.
+      <div className="overflow-hidden pb-1">
+        <div className="px-6 md:px-8 py-4 space-y-4">
+          <h1 className="text-2xl md:text-3xl font-normal text-gray-900 leading-tight text-center">
+            Zenro's Training and Career Readiness Program
+          </h1>
+          <p className="text-sm text-gray-700 leading-relaxed font-medium italic text-left">
+            Please fill out the form accurately to help us evaluate your profile for the Japan transition journey.
           </p>
-          <div className="text-xs text-red-600 font-medium">* Indicates required question</div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Full Name */}
-        <FormSection title="Full Name" required>
-          <input
-            required
-            type="text"
-            placeholder="Your answer"
-            value={currentLead.full_name}
-            onChange={(e) => handleChange('full_name', e.target.value)}
-            className="w-full border-b border-gray-300 focus:border-indigo-600 outline-none py-2 text-sm transition-colors focus:border-b-2"
-          />
-        </FormSection>
-
-        {/* Contact info block */}
-        <FormSection title="Contact Information" details="Email and Phone are required for evaluation." required>
-          <div className="space-y-6">
-            <div className="space-y-1">
-              <label className="text-xs text-gray-500 uppercase tracking-tight">Email address</label>
-              <input
-                required
-                type="email"
-                placeholder="Your email"
-                value={currentLead.email}
-                onChange={(e) => handleChange('email', e.target.value)}
-                className="w-full border-b border-gray-300 focus:border-indigo-600 outline-none py-2 text-sm transition-colors focus:border-b-2"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs text-gray-500 uppercase tracking-tight">Phone number</label>
-              <input
-                required
-                type="tel"
-                placeholder="Your phone number"
-                value={currentLead.phone}
-                onChange={(e) => handleChange('phone', e.target.value)}
-                className="w-full border-b border-gray-300 focus:border-indigo-600 outline-none py-2 text-sm transition-colors focus:border-b-2"
-              />
-            </div>
-          </div>
-        </FormSection>
-
-        {/* Radio Questions */}
-        <FormSection title="Japanese Language Training" details="Are you willing to undergo six months of intensive training?" required>
-          <div className="space-y-3 pt-2">
+      <form onSubmit={handleSubmit} className="space-y-3">
+        {/* Japanese Language Training */}
+        <FormSection title="Six months of dedicated Japanese language training is mandatory. Please confirm your willingness:" required>
+          <div className="space-y-4 pt-4">
             {LANGUAGE_OPTIONS.map((opt) => (
               <label key={opt} className="flex items-center gap-3 cursor-pointer group">
                 <input
@@ -138,41 +113,56 @@ export default function LeadForm({ currentLead, setCurrentLead, onSuccess }: Lea
                   type="radio"
                   name="language"
                   checked={currentLead.language_willingness === opt}
-                  onChange={() => handleChange('language_willingness', opt)}
-                  className="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 accent-indigo-600"
+                  onChange={() => handleInputChange('language_willingness', opt)}
+                  className="w-4 h-4 accent-blue-600 cursor-pointer"
                 />
-                <span className="text-sm text-gray-800 group-hover:text-gray-900">{opt}</span>
+                <span className="text-sm text-gray-800">{opt}</span>
               </label>
             ))}
           </div>
         </FormSection>
 
-        <FormSection title="Education Qualification" required>
-          <select 
-            required
-            value={currentLead.education}
-            onChange={(e) => handleChange('education', e.target.value)}
-            className="w-full max-w-xs border border-gray-300 rounded p-2 text-sm outline-none focus:border-indigo-600 bg-white"
-          >
-            <option value="">Choose</option>
-            {EDUCATION_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-          </select>
+        {/* Education Qualification */}
+        <FormSection title="Highest education qualification" required>
+          <div className="space-y-4 pt-4">
+            {EDUCATION_OPTIONS.map((opt) => (
+              <label key={opt} className="flex items-center gap-3 cursor-pointer group">
+                <input
+                  required
+                  type="radio"
+                  name="education"
+                  checked={currentLead.education === opt}
+                  onChange={() => handleInputChange('education', opt)}
+                  className="w-4 h-4 accent-blue-600 cursor-pointer"
+                />
+                <span className="text-sm text-gray-800">{opt}</span>
+              </label>
+            ))}
+          </div>
         </FormSection>
 
-        <FormSection title="Preferred Job Role" required>
-          <select 
-            required
-            value={currentLead.job_role}
-            onChange={(e) => handleChange('job_role', e.target.value)}
-            className="w-full max-w-xs border border-gray-300 rounded p-2 text-sm outline-none focus:border-indigo-600 bg-white"
-          >
-            <option value="">Choose</option>
-            {JOB_INTEREST_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-          </select>
+        {/* Preferred Job Role */}
+        <FormSection title="Which job role interests you most?" required>
+          <div className="space-y-4 pt-4">
+            {JOB_INTEREST_OPTIONS.map((opt) => (
+              <label key={opt} className="flex items-center gap-3 cursor-pointer group">
+                <input
+                  required
+                  type="radio"
+                  name="job_role"
+                  checked={currentLead.job_role === opt}
+                  onChange={() => handleInputChange('job_role', opt)}
+                  className="w-4 h-4 accent-blue-600 cursor-pointer"
+                />
+                <span className="text-sm text-gray-800">{opt}</span>
+              </label>
+            ))}
+          </div>
         </FormSection>
 
-        <FormSection title="Investment Comfort" required>
-          <div className="space-y-3 pt-2">
+        {/* Investment Capacity */}
+        <FormSection title="The estimated investment is ₹2 lakhs, payable in stages. Are you comfortable with this?" required>
+          <div className="space-y-4 pt-4">
             {INVESTMENT_OPTIONS.map((opt) => (
               <label key={opt} className="flex items-center gap-3 cursor-pointer group">
                 <input
@@ -180,93 +170,119 @@ export default function LeadForm({ currentLead, setCurrentLead, onSuccess }: Lea
                   type="radio"
                   name="investment"
                   checked={currentLead.investment_comfort === opt}
-                  onChange={() => handleChange('investment_comfort', opt)}
-                  className="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500 accent-indigo-600"
+                  onChange={() => handleInputChange('investment_comfort', opt)}
+                  className="w-4 h-4 accent-blue-600 cursor-pointer"
                 />
-                <span className="text-sm text-gray-800 group-hover:text-gray-900">{opt}</span>
+                <span className="text-sm text-gray-800">{opt}</span>
               </label>
             ))}
           </div>
         </FormSection>
 
-        <FormSection title="Location">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-1">
-              <label className="text-xs text-gray-500">State</label>
-              <input
-                type="text"
-                placeholder="Your answer"
-                value={currentLead.state}
-                onChange={(e) => handleChange('state', e.target.value)}
-                className="w-full border-b border-gray-300 focus:border-indigo-600 outline-none py-2 text-sm transition-colors focus:border-b-2"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs text-gray-500">City</label>
-              <input
-                type="text"
-                placeholder="Your answer"
-                value={currentLead.city}
-                onChange={(e) => handleChange('city', e.target.value)}
-                className="w-full border-b border-gray-300 focus:border-indigo-600 outline-none py-2 text-sm transition-colors focus:border-b-2"
-              />
-            </div>
-          </div>
+        {/* Achievement */}
+        <FormSection title="Describe the biggest achievement you consider so far." required>
+          <textarea
+            required
+            rows={3}
+            placeholder="Your answer"
+            value={currentLead.achievement}
+            onChange={(e) => handleInputChange('achievement', e.target.value)}
+            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2 resize-none"
+          />
         </FormSection>
 
-        <FormSection title="Motivation & Achievements">
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <p className="text-sm">What is your biggest achievement so far?</p>
-              <textarea
-                rows={3}
-                placeholder="Your answer"
-                value={currentLead.achievement}
-                onChange={(e) => handleChange('achievement', e.target.value)}
-                className="w-full border border-gray-300 rounded p-3 text-sm outline-none focus:border-indigo-600 resize-none bg-gray-50/50"
-              />
-            </div>
-            <div className="space-y-4">
-              <p className="text-sm">Why do you want to go to Japan?</p>
-              <textarea
-                rows={3}
-                placeholder="Your answer"
-                value={currentLead.why_japan}
-                onChange={(e) => handleChange('why_japan', e.target.value)}
-                className="w-full border border-gray-300 rounded p-3 text-sm outline-none focus:border-indigo-600 resize-none bg-gray-50/50"
-              />
-            </div>
-          </div>
+        {/* Why Japan */}
+        <FormSection title="Why do you want to go to Japan?" required>
+          <textarea
+            required
+            rows={3}
+            placeholder="Your answer"
+            value={currentLead.why_japan}
+            onChange={(e) => handleInputChange('why_japan', e.target.value)}
+            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2 resize-none"
+          />
+        </FormSection>
+
+        {/* Full Name */}
+        <FormSection title="Full Name" required>
+          <input
+            required
+            type="text"
+            placeholder="Your answer"
+            value={currentLead.full_name}
+            onChange={(e) => handleInputChange('full_name', e.target.value)}
+            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2"
+          />
+        </FormSection>
+
+        {/* Email */}
+        <FormSection title="Email Address" required>
+          <input
+            required
+            type="email"
+            placeholder="Your answer"
+            value={currentLead.email}
+            onChange={(e) => handleInputChange('email', e.target.value)}
+            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2"
+          />
+        </FormSection>
+
+        {/* Phone */}
+        <FormSection title="Phone Number" required>
+          <input
+            required
+            type="tel"
+            placeholder="Your answer"
+            value={currentLead.phone}
+            onChange={(e) => handleInputChange('phone', e.target.value)}
+            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2"
+          />
+        </FormSection>
+
+        {/* State */}
+        <FormSection title="State" required>
+          <input
+            required
+            type="text"
+            placeholder="Your answer"
+            value={currentLead.state}
+            onChange={(e) => handleInputChange('state', e.target.value)}
+            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2"
+          />
+        </FormSection>
+
+        {/* City */}
+        <FormSection title="City">
+          <input
+            type="text"
+            placeholder="Your answer"
+            value={currentLead.city}
+            onChange={(e) => handleInputChange('city', e.target.value)}
+            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2"
+          />
         </FormSection>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-xl text-sm">
+          <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg text-sm">
             {error}
           </div>
         )}
 
-        <div className="flex items-center justify-between py-6">
+        {/* Submit Form Button Group */}
+        <div className="py-6 space-y-6">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded transition-all disabled:opacity-50 text-sm shadow-sm"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded transition-all disabled:opacity-50 text-sm shadow-sm"
           >
             {isSubmitting ? 'Submitting...' : 'Submit Form'}
           </button>
           
-          <div className="hidden sm:block">
-            <div className="flex items-center gap-1 text-xs text-gray-400">
-              <span>Section 1 of 1</span>
-            </div>
-          </div>
+          <p className="text-xs text-gray-600 opacity-60 tracking-tight leading-relaxed px-1 text-left italic">
+            *this information will be used to reaching out you.
+          </p>
         </div>
       </form>
-      
-      <footer className="py-8 text-center">
-        <p className="text-[10px] text-gray-500 uppercase tracking-widest">
-          Never submit passwords through Google Forms Style UI.
-        </p>
-      </footer>
     </div>
   );
 }
@@ -280,18 +296,16 @@ interface FormSectionProps {
 
 function FormSection({ title, details, required, children }: FormSectionProps) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 transition-shadow hover:shadow-sm">
-      <div className="space-y-4">
-        <div className="space-y-1">
-          <div className="flex items-baseline gap-1">
-            <h3 className="text-base font-normal text-gray-900">{title}</h3>
-            {required && <span className="text-red-500 text-lg">*</span>}
-          </div>
-          {details && <p className="text-xs text-gray-500">{details}</p>}
+    <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 space-y-4">
+      <div className="space-y-2">
+        <div className="flex items-baseline gap-1">
+          <h3 className="text-base font-normal text-gray-900">{title}</h3>
+          {required && <span className="text-red-500 text-lg">*</span>}
         </div>
-        <div>
-          {children}
-        </div>
+        {details && <p className="text-xs text-gray-500">{details}</p>}
+      </div>
+      <div>
+        {children}
       </div>
     </div>
   );

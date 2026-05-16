@@ -10,7 +10,7 @@ export const EDUCATION_OPTIONS = [
   "ITI/Diploma",
   "Undergraduate",
   "Postgraduate",
-  "Other"
+  "Other:"
 ];
 
 export const JOB_INTEREST_OPTIONS = [
@@ -41,6 +41,9 @@ export const FEES_STRUCTURE = [
 ];
 
 export const YOUTUBE_TESTIMONIALS = [
-  { id: 'vid1', videoId: 'dQw4w9WgXcQ', title: 'Anil\'s Success Story - Tokyo' },
-  { id: 'vid2', videoId: 'dQw4w9WgXcQ', title: 'Priya\'s Journey to Osaka' }
+  { id: 'vid1', videoId: '2HltmIHB-Ww', title: 'Student Experience 1' },
+  { id: 'vid2', videoId: 'klNVypEQwkQ', title: 'Student Experience 2' },
+  { id: 'vid3', videoId: 'lHcm8RunV4M', title: 'Student Experience 3' },
+  { id: 'vid4', videoId: 'yrk9LlvyTsg', title: 'Student Experience 4' },
+  { id: 'vid5', videoId: 'qqwMK89a94Q', title: 'Program Overview' }
 ];

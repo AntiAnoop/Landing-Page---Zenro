@@ -25,37 +25,38 @@ export default function App() {
     phone: '',
     status: 'lead'
   });
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
 
   const navigateTo = useCallback((nextView: AppView) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setView(nextView);
   }, []);
 
+  const handleFormSuccess = useCallback(() => {
+    setShowSuccessOverlay(true);
+    // Punchy success message then redirect
+    setTimeout(() => {
+      setShowSuccessOverlay(false);
+      navigateTo(AppView.SUCCESS_BROCHURE);
+    }, 2000);
+  }, [navigateTo]);
+
   return (
-    <div className="min-h-screen bg-[#F0F2F5] font-sans text-gray-900 selection:bg-indigo-100">
-      {/* Google Forms-style top accent bar */}
-      <div className="fixed top-0 left-0 right-0 h-2 bg-indigo-600 z-50" />
-
-      {!isSupabaseConfigured && (
-        <div className="fixed top-4 left-4 right-4 z-50 p-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-lg shadow-sm">
-          <strong>Configuration Required:</strong> Supabase environment variables are missing. Lead capture will not save to the database.
-        </div>
-      )}
-
-      <main className="max-w-screen-sm mx-auto pt-6 pb-20 px-0 sm:px-4">
+    <div className="min-h-screen bg-[#F0EBF8] font-sans text-[#202124] selection:bg-blue-100">
+      <main className="max-w-2xl mx-auto pt-6 pb-20 px-4">
         <AnimatePresence mode="wait">
           <motion.div
             key={view}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
           >
             {view === AppView.FORM_QUALIFICATION && (
               <LeadForm 
                 currentLead={currentLead} 
                 setCurrentLead={setCurrentLead} 
-                onSuccess={() => navigateTo(AppView.SUCCESS_BROCHURE)} 
+                onSuccess={handleFormSuccess} 
               />
             )}
             {view === AppView.SUCCESS_BROCHURE && (

@@ -1,8 +1,10 @@
 import React from 'react';
 import { 
   Download, 
-  ExternalLink, 
-  Play
+  Play,
+  CheckCircle2,
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 import { YOUTUBE_TESTIMONIALS } from '../constants';
 
@@ -12,66 +14,73 @@ interface SuccessViewProps {
 
 export default function SuccessView({ onEnroll }: SuccessViewProps) {
   return (
-    <div className="space-y-4 px-3 sm:px-0">
-      {/* Header Card */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-        <div className="h-2 bg-green-500" />
+    <div className="space-y-3">
+      {/* Success Header Card */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="p-6 md:p-8 space-y-4">
-          <h1 className="text-2xl md:text-3xl font-normal text-gray-900">Application Successfully Submitted</h1>
-          <p className="text-sm text-gray-700 leading-relaxed">
+          <h1 className="text-2xl md:text-3xl font-normal text-gray-900 text-center">Application Submitted</h1>
+          <p className="text-sm text-gray-700 leading-relaxed text-center">
             Your profile has been received. You are eligible to proceed with the program enrollment. 
             Please review the resources below.
           </p>
         </div>
       </div>
 
-      {/* Brochure Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 flex items-center justify-between shadow-sm">
+      {/* Brochure Card */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 flex items-center justify-between group hover:border-blue-600 transition-colors">
         <div className="space-y-1">
-          <h3 className="text-sm font-medium text-gray-900">Zenro TPP Brochure</h3>
-          <p className="text-xs text-gray-500">Program details & curriculum</p>
+          <h3 className="text-sm font-medium text-gray-900">Official 2026 Prospectus</h3>
+          <p className="text-xs text-gray-400">Detailed curriculum, salary charts & job domains.</p>
         </div>
         <button 
           onClick={() => window.open('#', '_blank')}
-          className="flex items-center gap-2 text-indigo-600 font-medium text-sm hover:underline"
+          className="flex items-center gap-2 text-blue-600 font-medium text-sm hover:underline"
         >
-          <Download className="w-4 h-4" />
+          <Download className="w-5 h-5" />
           Download PDF
         </button>
       </div>
 
-      {/* Testimonials */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 space-y-6 shadow-sm">
-        <h3 className="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2">Student Testimonials</h3>
-        <div className="grid gap-6">
+      {/* Video Carousel Card */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 space-y-6">
+        <h3 className="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2 uppercase tracking-widest">Student Life in Japan</h3>
+        
+        <div className="flex overflow-x-auto gap-4 no-scrollbar -mx-2 px-2 snap-x snap-mandatory">
           {YOUTUBE_TESTIMONIALS.map((video) => (
-            <div key={video.id} className="group cursor-pointer">
-              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden relative flex items-center justify-center border border-gray-200">
-                <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                  <Play className="w-5 h-5 text-indigo-600 fill-current" />
-                </div>
+            <div key={video.id} className="min-w-[280px] sm:min-w-[320px] snap-center group cursor-pointer space-y-3">
+              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden relative border border-gray-200">
+                <iframe 
+                  className="absolute inset-0 w-full h-full"
+                  src={`https://www.youtube.com/embed/${video.videoId}?autoplay=0&rel=0`} 
+                  title={video.title}
+                  loading="lazy"
+                />
               </div>
-              <div className="mt-3 flex items-center justify-between">
-                <p className="text-sm font-medium text-gray-700">{video.title}</p>
-                <ExternalLink className="w-3 h-3 text-gray-400" />
-              </div>
+              <p className="text-xs font-medium text-gray-500 px-1 truncate">{video.title}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Action Footer */}
-      <div className="py-8 space-y-4">
+      {/* Final Action Card */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 space-y-6">
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium text-gray-900">Next Step: Training Schedule</h3>
+          <p className="text-xs text-gray-500 italic">Select your preferred batch timing to finalize your enrollment.</p>
+        </div>
         <button
           onClick={onEnroll}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg shadow-sm transition-all text-sm uppercase tracking-wide"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg shadow-sm transition-all text-sm uppercase tracking-widest active:scale-95"
         >
-          Proceed to Enrollment
+          Proceed to Scheduling
         </button>
-        <p className="text-center text-[10px] text-gray-400 font-medium uppercase tracking-widest">
-          Limited availability for upcoming cohort
-        </p>
       </div>
+
+      <footer className="py-8 text-center">
+        <p className="text-[10px] text-gray-400 uppercase tracking-widest font-medium">
+          Zenro Global Assessment Dashboard
+        </p>
+      </footer>
     </div>
   );
 }
