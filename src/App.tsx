@@ -8,14 +8,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { AppView, TppLead } from './types';
 import LeadForm from './components/LeadForm';
 import SuccessView from './components/SuccessView';
 import EnrollForm from './components/EnrollForm';
 import ShopSeMock from './components/ShopSeMock';
-import { Loader2 } from 'lucide-react';
+import { isSupabaseConfigured } from './lib/supabase';
 
 export default function App() {
   const [view, setView] = useState<AppView>(AppView.FORM_QUALIFICATION);
@@ -25,47 +25,31 @@ export default function App() {
     phone: '',
     status: 'lead'
   });
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Smooth navigation with potential loading state
   const navigateTo = useCallback((nextView: AppView) => {
-    setIsLoading(true);
-    // Simulate a brief transition delay for "premium" feel
-    setTimeout(() => {
-      setView(nextView);
-      setIsLoading(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 400);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setView(nextView);
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] font-sans text-[#1A1A1A] overflow-x-hidden">
-      {/* Background Decorative Elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-[10%] -left-[5%] w-[40%] h-[40%] rounded-full bg-red-500/5 blur-[100px]" />
-        <div className="absolute top-[60%] -right-[10%] w-[50%] h-[50%] rounded-full bg-blue-500/5 blur-[120px]" />
-      </div>
+    <div className="min-h-screen bg-[#F0F2F5] font-sans text-gray-900 selection:bg-indigo-100">
+      {/* Google Forms-style top accent bar */}
+      <div className="fixed top-0 left-0 right-0 h-2 bg-indigo-600 z-50" />
 
-      <main className="relative z-10 max-w-md mx-auto min-h-screen shadow-2xl bg-white sm:shadow-none">
+      {!isSupabaseConfigured && (
+        <div className="fixed top-4 left-4 right-4 z-50 p-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-lg shadow-sm">
+          <strong>Configuration Required:</strong> Supabase environment variables are missing. Lead capture will not save to the database.
+        </div>
+      )}
+
+      <main className="max-w-screen-sm mx-auto pt-6 pb-20 px-0 sm:px-4">
         <AnimatePresence mode="wait">
-          {isLoading ? (
-            <motion.div
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-50"
-            >
-              <Loader2 className="w-8 h-8 animate-spin text-red-600" />
-            </motion.div>
-          ) : null}
-
           <motion.div
             key={view}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
           >
             {view === AppView.FORM_QUALIFICATION && (
               <LeadForm 
@@ -92,7 +76,6 @@ export default function App() {
                 currentLead={currentLead}
                 onSuccess={() => {
                   setCurrentLead(prev => ({ ...prev, status: 'enrolled' }));
-                  // Confirmation logic
                 }}
                 onCancel={() => navigateTo(AppView.ENROLL_FORM)}
               />
@@ -100,8 +83,6 @@ export default function App() {
           </motion.div>
         </AnimatePresence>
       </main>
-
-      {/* Mobile Sticky CTA area if needed - usually step components handle this */}
     </div>
   );
 }
