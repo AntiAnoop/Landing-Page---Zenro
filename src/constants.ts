@@ -33,11 +33,25 @@ export const CLASS_TIMINGS = [
   { id: 'evening', label: 'Evening (8:00 PM - 9:00 PM)' }
 ];
 
+export const PROGRAM_FEE_TOTAL = "₹2,00,000";
+
+export const PHASE_1_FEES = [
+  { month: "Month 1", amount: "₹10,000" },
+  { month: "Month 2", amount: "₹8,000" },
+  { month: "Month 3", amount: "₹8,000" },
+  { month: "Month 4", amount: "₹8,000" },
+  { month: "Month 5", amount: "₹8,000" },
+  { month: "Month 6", amount: "₹8,000" },
+];
+
+export const PHASE_2_FEES = [
+  { label: "Installment 1", amount: "₹75,000" },
+  { label: "Installment 2", amount: "₹75,000" },
+];
+
 export const FEES_STRUCTURE = [
-  { stage: 'Registration Fee', amount: '₹2,500', description: 'Application processing and counseling' },
-  { stage: 'Language Training', amount: '₹45,000', description: '6 months intensive N5/N4 preparation' },
-  { stage: 'Visa Processing', amount: '₹15,000', description: 'Documentation and embassy coordination' },
-  { stage: 'Total Program Cost', amount: '₹62,500', description: 'All-inclusive transition support' }
+  { stage: 'Phase - I', total: '₹50,000', detail: 'Pay in 6 installments' },
+  { stage: 'Phase - II', total: '₹1,50,000', detail: 'Pay in 2 installments' },
 ];
 
 export const YOUTUBE_TESTIMONIALS = [
