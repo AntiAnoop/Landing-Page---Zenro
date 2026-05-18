@@ -2,5 +2,7 @@
   "name": "Zenro Japan TPP",
   "description": "High-conversion landing page for Japanese Language Training with real-time lead capture.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

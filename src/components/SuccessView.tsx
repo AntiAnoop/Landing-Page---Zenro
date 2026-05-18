@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  Download, 
+  FileText, 
   Play,
   CheckCircle2,
   ChevronRight,
@@ -14,72 +14,72 @@ interface SuccessViewProps {
 
 export default function SuccessView({ onEnroll }: SuccessViewProps) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* Success Header Card */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="p-6 md:p-8 space-y-4">
-          <h1 className="text-2xl md:text-3xl font-normal text-gray-900 text-center">Application Submitted</h1>
-          <p className="text-sm text-gray-700 leading-relaxed text-center">
-            Your profile has been received. You are eligible to proceed with the program enrollment. 
-            Please review the resources below.
-          </p>
+        <div className="p-8 md:p-10 flex flex-col items-center space-y-6">
+          <CheckCircle2 className="w-16 h-16 text-green-500" strokeWidth={1.5} />
+          <div className="space-y-3 text-center">
+            <h1 className="text-2xl md:text-3xl font-normal text-gray-900">Application Submitted</h1>
+            <p className="text-sm text-gray-600 leading-relaxed max-w-sm mx-auto">
+              Your profile has been received. You are eligible to proceed with the program enrollment. 
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Brochure Card */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 flex items-center justify-between group hover:border-blue-600 transition-colors">
-        <div className="space-y-1">
-          <h3 className="text-sm font-medium text-gray-900">Official 2026 Prospectus</h3>
-          <p className="text-xs text-gray-400">Detailed curriculum, salary charts & job domains.</p>
+      <div 
+        onClick={() => window.open('#', '_blank')}
+        className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 flex items-center justify-between group hover:border-blue-600 transition-all cursor-pointer shadow-sm hover:shadow-md"
+      >
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors">
+            <FileText className="w-6 h-6 text-red-500" />
+          </div>
+          <div className="space-y-0.5">
+            <h3 className="text-base font-medium text-gray-900">Zenro's Brochure</h3>
+            <p className="text-xs text-gray-400">PDF Document • 2.4 MB</p>
+          </div>
         </div>
-        <button 
-          onClick={() => window.open('#', '_blank')}
-          className="flex items-center gap-2 text-blue-600 font-medium text-sm hover:underline"
-        >
-          <Download className="w-5 h-5" />
-          Download PDF
-        </button>
+        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
       </div>
 
-      {/* Video Carousel Card */}
+      {/* Video Vertical Stack */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 space-y-6">
-        <h3 className="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2 uppercase tracking-widest">Student Life in Japan</h3>
+        <h3 className="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2 uppercase tracking-widest">Take a Look at Zenro's Program</h3>
         
-        <div className="flex overflow-x-auto gap-4 no-scrollbar -mx-2 px-2 snap-x snap-mandatory">
+        <div className="flex flex-col gap-8">
           {YOUTUBE_TESTIMONIALS.map((video) => (
-            <div key={video.id} className="min-w-[280px] sm:min-w-[320px] snap-center group cursor-pointer space-y-3">
-              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden relative border border-gray-200">
+            <div key={video.id} className="group cursor-pointer">
+              <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden relative border border-gray-200 shadow-sm transition-transform active:scale-[0.99]">
                 <iframe 
                   className="absolute inset-0 w-full h-full"
                   src={`https://www.youtube.com/embed/${video.videoId}?autoplay=0&rel=0`} 
                   title={video.title}
                   loading="lazy"
+                  allowFullScreen
                 />
               </div>
-              <p className="text-xs font-medium text-gray-500 px-1 truncate">{video.title}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Final Action Card */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 space-y-6">
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium text-gray-900">Next Step: Training Schedule</h3>
-          <p className="text-xs text-gray-500 italic">Select your preferred batch timing to finalize your enrollment.</p>
-        </div>
+      <div className="bg-white rounded-xl border border-gray-200 p-8 md:p-10 space-y-8 text-center">
+        <h3 className="text-xl md:text-2xl font-normal text-gray-900">Ready to Enroll with Zenro?</h3>
         <button
           onClick={onEnroll}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg shadow-sm transition-all text-sm uppercase tracking-widest active:scale-95"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg shadow-blue-200 transition-all text-sm uppercase tracking-widest active:scale-95 flex items-center justify-center gap-2"
         >
-          Proceed to Scheduling
+          Enroll Now
+          <ChevronRight className="w-5 h-5" />
         </button>
       </div>
 
       <footer className="py-8 text-center">
-        <p className="text-[10px] text-gray-400 uppercase tracking-widest font-medium">
-          Zenro Global Assessment Dashboard
-        </p>
+        {/* Placeholder for legal links or support contact */}
       </footer>
     </div>
   );

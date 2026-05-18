@@ -23,6 +23,15 @@ export default function App() {
     full_name: '',
     email: '',
     phone: '',
+    language_willingness: '',
+    education: '',
+    job_role: '',
+    investment_comfort: '',
+    achievement: '',
+    why_japan: '',
+    state: '',
+    city: '',
+    class_timing: '',
     status: 'lead'
   });
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);

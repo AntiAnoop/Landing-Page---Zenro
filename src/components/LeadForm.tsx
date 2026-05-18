@@ -31,27 +31,32 @@ export default function LeadForm({ currentLead, setCurrentLead, onSuccess }: Lea
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Debounced real-time upsert for contact info
   useEffect(() => {
-    if (!isSupabaseConfigured) return;
+    if (!isSupabaseConfigured) {
+      console.warn('Supabase is not configured. Form will simulate success without saving data.');
+      return;
+    }
 
     const { full_name, email, phone } = currentLead;
-    if (!phone || phone.length < 5) return;
+    if (!phone || phone.length < 10) return; // Only autosave when phone is 10 digits
 
     const timer = setTimeout(async () => {
       try {
-        await supabase
+        const { error: autosaveError } = await supabase
           .from('tpp_leads')
           .upsert({ 
             phone, 
-            full_name: full_name || null, 
-            email: email || null,
-            status: 'lead'
+            full_name: full_name || '', 
+            email: email || '',
+            status: 'lead',
+            updated_at: new Date().toISOString()
           }, { onConflict: 'phone' });
+        
+        if (autosaveError) console.error('Autosave failed:', autosaveError.message);
       } catch (e) {
         console.error('Lead partial save failed', e);
       }
-    }, 1000);
+    }, 2000); // 2 second delay for autosave
 
     return () => clearTimeout(timer);
   }, [currentLead.full_name, currentLead.email, currentLead.phone]);
@@ -61,25 +66,75 @@ export default function LeadForm({ currentLead, setCurrentLead, onSuccess }: Lea
     setError('');
     
     if (!isSupabaseConfigured) {
-      onSuccess();
+      console.error('Supabase keys missing. Details:', { url: !!import.meta.env.VITE_SUPABASE_URL, key: !!import.meta.env.VITE_SUPABASE_ANON_KEY });
+      setError('Database not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.');
+      setIsSubmitting(false);
+      // Optional: Allow user to proceed for demo purposes if preferred, 
+      // but usually better to show error if they expect it to save.
       return;
     }
 
     setIsSubmitting(true);
+    
+    // Professional Phone Validation: Exactly 10 digits
+    const phoneRegex = /^[6-9]\d{9}$/; // Starts with 6-9 usually for Indian numbers, but keeping it simple first
+    if (!currentLead.phone || !/^\d{10}$/.test(currentLead.phone)) {
+      setError('Please enter a valid 10-digit phone number.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Professional Email Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!currentLead.email || !emailRegex.test(currentLead.email)) {
+      setError('Please enter a valid email address.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Check for mandatory textareas length (at least 10 chars)
+    if ((currentLead.achievement?.length || 0) < 10) {
+      setError('Please provide a bit more detail about your achievement (min 10 characters).');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if ((currentLead.why_japan?.length || 0) < 10) {
+      setError('Please tell us more about why you want to go to Japan (min 10 characters).');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
+      // Create a clean payload to avoid any extra fields
+      const payload: any = {
+        phone: currentLead.phone,
+        full_name: currentLead.full_name || '',
+        email: currentLead.email || '',
+        language_willingness: currentLead.language_willingness || '',
+        education: currentLead.education || '',
+        job_role: currentLead.job_role || '',
+        investment_comfort: currentLead.investment_comfort || '',
+        achievement: currentLead.achievement || '',
+        why_japan: currentLead.why_japan || '',
+        state: currentLead.state || '',
+        city: currentLead.city || '',
+        status: 'qualified',
+        updated_at: new Date().toISOString()
+      };
+
       const { error: supaError } = await supabase
         .from('tpp_leads')
-        .upsert({
-          ...currentLead,
-          status: 'qualified',
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'phone' });
+        .upsert(payload, { onConflict: 'phone' });
 
-      if (supaError) throw supaError;
+      if (supaError) {
+        console.error('Supabase error detail:', supaError);
+        throw supaError;
+      }
       onSuccess();
     } catch (err: any) {
       handleSupabaseError(err, 'final_form_submit');
-      setError('Connection error. Please try again.');
+      setError(`Submission failed: ${err.message || 'Check your internet connection.'}`);
       setIsSubmitting(false);
     }
   };
@@ -93,10 +148,10 @@ export default function LeadForm({ currentLead, setCurrentLead, onSuccess }: Lea
       {/* Header Card */}
       <div className="overflow-hidden pb-1">
         <div className="px-6 md:px-8 py-4 space-y-4">
-          <h1 className="text-2xl md:text-3xl font-normal text-gray-900 leading-tight text-center">
+          <h1 className="text-2xl md:text-3xl font-medium text-gray-900 leading-tight text-center">
             Zenro's Training and Career Readiness Program
           </h1>
-          <p className="text-sm text-gray-700 leading-relaxed font-medium italic text-left">
+          <p className="text-sm text-gray-600 leading-relaxed font-medium italic text-left opacity-90">
             Please fill out the form accurately to help us evaluate your profile for the Japan transition journey.
           </p>
         </div>
@@ -181,26 +236,44 @@ export default function LeadForm({ currentLead, setCurrentLead, onSuccess }: Lea
 
         {/* Achievement */}
         <FormSection title="Describe the biggest achievement you consider so far." required>
-          <textarea
-            required
-            rows={3}
-            placeholder="Your answer"
-            value={currentLead.achievement}
-            onChange={(e) => handleInputChange('achievement', e.target.value)}
-            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2 resize-none"
-          />
+          <div className="space-y-2">
+            <textarea
+              required
+              rows={3}
+              minLength={10}
+              maxLength={500}
+              placeholder="Your answer"
+              value={currentLead.achievement}
+              onChange={(e) => handleInputChange('achievement', e.target.value)}
+              className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2 resize-none"
+            />
+            <div className="flex justify-end">
+              <span className="text-[10px] text-gray-400">
+                {currentLead.achievement?.length || 0}/500
+              </span>
+            </div>
+          </div>
         </FormSection>
 
         {/* Why Japan */}
         <FormSection title="Why do you want to go to Japan?" required>
-          <textarea
-            required
-            rows={3}
-            placeholder="Your answer"
-            value={currentLead.why_japan}
-            onChange={(e) => handleInputChange('why_japan', e.target.value)}
-            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2 resize-none"
-          />
+          <div className="space-y-2">
+            <textarea
+              required
+              rows={3}
+              minLength={10}
+              maxLength={500}
+              placeholder="Your answer"
+              value={currentLead.why_japan}
+              onChange={(e) => handleInputChange('why_japan', e.target.value)}
+              className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2 resize-none"
+            />
+            <div className="flex justify-end">
+              <span className="text-[10px] text-gray-400">
+                {currentLead.why_japan?.length || 0}/500
+              </span>
+            </div>
+          </div>
         </FormSection>
 
         {/* Full Name */}
@@ -208,10 +281,12 @@ export default function LeadForm({ currentLead, setCurrentLead, onSuccess }: Lea
           <input
             required
             type="text"
+            minLength={3}
+            maxLength={100}
             placeholder="Your answer"
             value={currentLead.full_name}
             onChange={(e) => handleInputChange('full_name', e.target.value)}
-            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2"
+            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2 bg-transparent"
           />
         </FormSection>
 
@@ -220,23 +295,36 @@ export default function LeadForm({ currentLead, setCurrentLead, onSuccess }: Lea
           <input
             required
             type="email"
-            placeholder="Your answer"
+            placeholder="example@email.com"
             value={currentLead.email}
             onChange={(e) => handleInputChange('email', e.target.value)}
-            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2"
+            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2 bg-transparent"
           />
         </FormSection>
 
         {/* Phone */}
         <FormSection title="Phone Number" required>
-          <input
-            required
-            type="tel"
-            placeholder="Your answer"
-            value={currentLead.phone}
-            onChange={(e) => handleInputChange('phone', e.target.value)}
-            className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2"
-          />
+          <div className="relative">
+            <input
+              required
+              type="tel"
+              inputMode="numeric"
+              pattern="[0-9]{10}"
+              maxLength={10}
+              placeholder="10-digit number"
+              value={currentLead.phone}
+              onKeyDown={(e) => {
+                if (
+                  !/[0-9]/.test(e.key) && 
+                  !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)
+                ) {
+                  e.preventDefault();
+                }
+              }}
+              onChange={(e) => handleInputChange('phone', e.target.value.replace(/\D/g, ''))}
+              className="w-full border-b border-gray-300 focus:border-blue-600 outline-none pt-4 pb-2 text-sm transition-all focus:border-b-2 bg-transparent"
+            />
+          </div>
         </FormSection>
 
         {/* State */}
