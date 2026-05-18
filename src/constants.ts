@@ -55,9 +55,8 @@ export const FEES_STRUCTURE = [
 ];
 
 export const YOUTUBE_TESTIMONIALS = [
-  { id: 'vid1', videoId: '2HltmIHB-Ww', title: 'Student Experience 1' },
-  { id: 'vid2', videoId: 'klNVypEQwkQ', title: 'Student Experience 2' },
-  { id: 'vid3', videoId: 'lHcm8RunV4M', title: 'Student Experience 3' },
-  { id: 'vid4', videoId: 'yrk9LlvyTsg', title: 'Student Experience 4' },
-  { id: 'vid5', videoId: 'qqwMK89a94Q', title: 'Program Overview' }
+  { id: 'vid1', videoId: 'i5ZEc1NbBa8', title: 'Life in Japan 1' },
+  { id: 'vid2', videoId: 'lHcm8RunV4M', title: 'Life in Japan 2' },
+  { id: 'vid3', videoId: 'klNVypEQwkQ', title: 'Life in Japan 3' },
+  { id: 'vid4', videoId: 'qqwMK89a94Q', title: 'Life in Japan 4' }
 ];

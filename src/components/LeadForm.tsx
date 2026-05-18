@@ -10,7 +10,8 @@ import {
   MapPin, 
   User, 
   Mail, 
-  Phone 
+  Phone,
+  FastForward
 } from 'lucide-react';
 import { TppLead } from '../types';
 import { supabase, handleSupabaseError, isSupabaseConfigured } from '../lib/supabase';
@@ -143,8 +144,38 @@ export default function LeadForm({ currentLead, setCurrentLead, onSuccess }: Lea
     setCurrentLead(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleTestSkip = () => {
+    const testData: Partial<TppLead> = {
+      full_name: 'Test Tester',
+      email: 'test@zenro.com',
+      phone: '9876543210',
+      language_willingness: LANGUAGE_OPTIONS[0],
+      education: EDUCATION_OPTIONS[3],
+      job_role: JOB_INTEREST_OPTIONS[5],
+      investment_comfort: INVESTMENT_OPTIONS[0],
+      achievement: 'Completed a full course on Japanese Language in record time.',
+      why_japan: 'I love the culture and technology in Japan and want a global career.',
+      state: 'Karnataka',
+      city: 'Bangalore',
+      status: 'qualified'
+    };
+    setCurrentLead(testData);
+    onSuccess();
+  };
+
   return (
     <div className="space-y-1">
+      {/* Test Skip Button */}
+      <div className="flex justify-end px-6 pt-2">
+        <button 
+          onClick={handleTestSkip}
+          className="flex items-center gap-1 text-[9px] text-gray-300 hover:text-blue-500 font-bold uppercase tracking-tighter transition-colors"
+        >
+          <FastForward className="w-3 h-3" />
+          Test Skip
+        </button>
+      </div>
+
       {/* Header Card */}
       <div className="overflow-hidden pb-1">
         <div className="px-6 md:px-8 py-4 space-y-4">

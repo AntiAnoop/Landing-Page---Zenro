@@ -45,19 +45,20 @@ export default function SuccessView({ onEnroll }: SuccessViewProps) {
         <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
       </div>
 
-      {/* Video Vertical Stack */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 space-y-6">
+      {/* Video Grid */}
+      <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-8 space-y-6">
         <h3 className="text-sm font-medium text-gray-900 border-b border-gray-100 pb-2 uppercase tracking-widest">Take a Look at Zenro's Program</h3>
         
-        <div className="flex flex-col gap-8">
+        <div className="grid grid-cols-2 gap-3 md:gap-6 pb-2">
           {YOUTUBE_TESTIMONIALS.map((video) => (
-            <div key={video.id} className="group cursor-pointer">
-              <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden relative border border-gray-200 shadow-sm transition-transform active:scale-[0.99]">
+            <div key={video.id} className="w-full">
+              <div className="aspect-[9/16] bg-gray-100 rounded-xl overflow-hidden relative border border-gray-100 shadow-sm transition-all hover:shadow-md">
                 <iframe 
                   className="absolute inset-0 w-full h-full"
-                  src={`https://www.youtube.com/embed/${video.videoId}?autoplay=0&rel=0`} 
+                  src={`https://www.youtube.com/embed/${video.videoId}?rel=0&modestbranding=1`} 
                   title={video.title}
                   loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
               </div>
